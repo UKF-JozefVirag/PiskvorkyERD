@@ -1,7 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using System;
 
+public class TokenComparer : IComparer
+{
+    int IComparer.Compare(object x, object y)
+    {
+        return ((new CaseInsensitiveComparer()).Compare(((GameObject)x).name, ((GameObject)y).name));
+    }
+}
 
 public class TurnScript : MonoBehaviour
 {
@@ -10,6 +19,8 @@ public class TurnScript : MonoBehaviour
     public Sprite[] images;
     private bool unplayed = true;
     private GameObject[] XO;
+    public GameObject WinGamePanel = null;
+    public TMP_Text WinGameText;
 
     /*
      * 
@@ -27,12 +38,15 @@ public class TurnScript : MonoBehaviour
 
     private void Start()
     {
-        XO = GameObject.FindGameObjectsWithTag("Tokens");
+        IComparer myComparer = new TokenComparer();
         spriteRenderer.sprite = null;
+        XO = GameObject.FindGameObjectsWithTag("Tokens");
+        Array.Sort(XO, myComparer);
     }
 
     private void Update()
     {
+        Debug.Log(XO[0]);
         CheckBoard();
     }
 
@@ -50,6 +64,7 @@ public class TurnScript : MonoBehaviour
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         gameBoard = GameObject.Find("GameBoard");
+        WinGamePanel.SetActive(false);
     }
 
 
@@ -60,16 +75,15 @@ public class TurnScript : MonoBehaviour
            ...
            XXX
         */
-        if (XO[0].GetComponent<SpriteRenderer>().sprite == images[0] && 
-            XO[1].GetComponent<SpriteRenderer>().sprite == images[0] && 
-            XO[2].GetComponent<SpriteRenderer>().sprite == images[0]){
-            gameBoard.GetComponent<GameScript>().WinX();
+        if (XO[6].GetComponent<SpriteRenderer>().sprite == images[0] && 
+            XO[7].GetComponent<SpriteRenderer>().sprite == images[0] && 
+            XO[8].GetComponent<SpriteRenderer>().sprite == images[0]){
+            WinX();
         }
-        else if (XO[0].GetComponent<SpriteRenderer>().sprite == images[1] &&
-            XO[1].GetComponent<SpriteRenderer>().sprite == images[1] &&
-            XO[2].GetComponent<SpriteRenderer>().sprite == images[1])
-        {
-            gameBoard.GetComponent<GameScript>().WinO();
+        else if (XO[6].GetComponent<SpriteRenderer>().sprite == images[1] &&
+            XO[7].GetComponent<SpriteRenderer>().sprite == images[1] &&
+            XO[8].GetComponent<SpriteRenderer>().sprite == images[1]){
+            WinO();
         }
          /*
            ...
@@ -79,29 +93,29 @@ public class TurnScript : MonoBehaviour
         else if (XO[3].GetComponent<SpriteRenderer>().sprite == images[0] && 
             XO[4].GetComponent<SpriteRenderer>().sprite == images[0] && 
             XO[5].GetComponent<SpriteRenderer>().sprite == images[0]){
-            gameBoard.GetComponent<GameScript>().WinX();
+            WinX();
         }
         else if (XO[3].GetComponent<SpriteRenderer>().sprite == images[1] &&
             XO[4].GetComponent<SpriteRenderer>().sprite == images[1] &&
             XO[5].GetComponent<SpriteRenderer>().sprite == images[1])
         {
-            gameBoard.GetComponent<GameScript>().WinO();
+            WinO();
         }
          /*
            XXX
            ...
            ...
         */
-        else if (XO[8].GetComponent<SpriteRenderer>().sprite == images[0] && 
-            XO[7].GetComponent<SpriteRenderer>().sprite == images[0] && 
-            XO[6].GetComponent<SpriteRenderer>().sprite == images[0]){
-            gameBoard.GetComponent<GameScript>().WinX();
+        else if (XO[0].GetComponent<SpriteRenderer>().sprite == images[0] && 
+            XO[1].GetComponent<SpriteRenderer>().sprite == images[0] && 
+            XO[2].GetComponent<SpriteRenderer>().sprite == images[0]){
+            WinX();
         }
-        else if (XO[8].GetComponent<SpriteRenderer>().sprite == images[1] &&
-            XO[7].GetComponent<SpriteRenderer>().sprite == images[1] &&
-            XO[6].GetComponent<SpriteRenderer>().sprite == images[1])
+        else if (XO[0].GetComponent<SpriteRenderer>().sprite == images[1] &&
+            XO[1].GetComponent<SpriteRenderer>().sprite == images[1] &&
+            XO[2].GetComponent<SpriteRenderer>().sprite == images[1])
         {
-            gameBoard.GetComponent<GameScript>().WinO();
+            WinO();
         } 
         
         /*
@@ -109,80 +123,105 @@ public class TurnScript : MonoBehaviour
            X..
            X..
         */
-        else if (XO[8].GetComponent<SpriteRenderer>().sprite == images[0] && 
+        else if (XO[0].GetComponent<SpriteRenderer>().sprite == images[0] && 
+            XO[3].GetComponent<SpriteRenderer>().sprite == images[0] && 
+            XO[6].GetComponent<SpriteRenderer>().sprite == images[0]){
+            WinX();
+        }
+        else if (XO[0].GetComponent<SpriteRenderer>().sprite == images[1] &&
+            XO[3].GetComponent<SpriteRenderer>().sprite == images[1] &&
+            XO[6].GetComponent<SpriteRenderer>().sprite == images[1])
+        {
+            WinO();
+        }
+        /*
+           .X.
+           .X.
+           .X.
+        */
+        else if (XO[1].GetComponent<SpriteRenderer>().sprite == images[0] && 
+            XO[4].GetComponent<SpriteRenderer>().sprite == images[0] && 
+            XO[7].GetComponent<SpriteRenderer>().sprite == images[0]){
+            WinX();
+        }
+        else if (XO[1].GetComponent<SpriteRenderer>().sprite == images[1] &&
+            XO[4].GetComponent<SpriteRenderer>().sprite == images[1] &&
+            XO[7].GetComponent<SpriteRenderer>().sprite == images[1])
+        {
+            WinO();
+        }
+        /*
+           ..X
+           ..X
+           ..X
+        */
+        else if (XO[2].GetComponent<SpriteRenderer>().sprite == images[0] && 
             XO[5].GetComponent<SpriteRenderer>().sprite == images[0] && 
-            XO[2].GetComponent<SpriteRenderer>().sprite == images[0]){
-            gameBoard.GetComponent<GameScript>().WinX();
+            XO[8].GetComponent<SpriteRenderer>().sprite == images[0]){
+            WinX();
         }
-        else if (XO[8].GetComponent<SpriteRenderer>().sprite == images[1] &&
+        else if (XO[2].GetComponent<SpriteRenderer>().sprite == images[1] &&
             XO[5].GetComponent<SpriteRenderer>().sprite == images[1] &&
-            XO[2].GetComponent<SpriteRenderer>().sprite == images[1])
+            XO[8].GetComponent<SpriteRenderer>().sprite == images[1])
         {
-            gameBoard.GetComponent<GameScript>().WinO();
-        }
-        /*
-           .X.
-           .X.
-           .X.
-        */
-        else if (XO[7].GetComponent<SpriteRenderer>().sprite == images[0] && 
-            XO[3].GetComponent<SpriteRenderer>().sprite == images[0] && 
-            XO[1].GetComponent<SpriteRenderer>().sprite == images[0]){
-            gameBoard.GetComponent<GameScript>().WinX();
-        }
-        else if (XO[7].GetComponent<SpriteRenderer>().sprite == images[1] &&
-            XO[3].GetComponent<SpriteRenderer>().sprite == images[1] &&
-            XO[1].GetComponent<SpriteRenderer>().sprite == images[1])
-        {
-            gameBoard.GetComponent<GameScript>().WinO();
-        }
-        /*
-           ..X
-           ..X
-           ..X
-        */
-        else if (XO[6].GetComponent<SpriteRenderer>().sprite == images[0] && 
-            XO[3].GetComponent<SpriteRenderer>().sprite == images[0] && 
-            XO[0].GetComponent<SpriteRenderer>().sprite == images[0]){
-            gameBoard.GetComponent<GameScript>().WinX();
-        }
-        else if (XO[6].GetComponent<SpriteRenderer>().sprite == images[1] &&
-            XO[3].GetComponent<SpriteRenderer>().sprite == images[1] &&
-            XO[0].GetComponent<SpriteRenderer>().sprite == images[1])
-        {
-            gameBoard.GetComponent<GameScript>().WinO();
+            WinO();
         }
         /*
            X..
            .X.
            ..X
         */
-        else if (XO[8].GetComponent<SpriteRenderer>().sprite == images[0] && 
+        else if (XO[0].GetComponent<SpriteRenderer>().sprite == images[0] && 
             XO[4].GetComponent<SpriteRenderer>().sprite == images[0] && 
-            XO[0].GetComponent<SpriteRenderer>().sprite == images[0]){
-            gameBoard.GetComponent<GameScript>().WinX();
+            XO[8].GetComponent<SpriteRenderer>().sprite == images[0]){
+            WinX();
         }
-        else if (XO[8].GetComponent<SpriteRenderer>().sprite == images[1] &&
+        else if (XO[0].GetComponent<SpriteRenderer>().sprite == images[1] &&
             XO[4].GetComponent<SpriteRenderer>().sprite == images[1] &&
-            XO[0].GetComponent<SpriteRenderer>().sprite == images[1])
+            XO[8].GetComponent<SpriteRenderer>().sprite == images[1])
         {
-            gameBoard.GetComponent<GameScript>().WinO();
+            WinO();
         }
         /*
            ..X
            .X.
            X..
         */
-        else if (XO[6].GetComponent<SpriteRenderer>().sprite == images[0] && 
+        else if (XO[2].GetComponent<SpriteRenderer>().sprite == images[0] && 
             XO[4].GetComponent<SpriteRenderer>().sprite == images[0] && 
-            XO[2].GetComponent<SpriteRenderer>().sprite == images[0]){
-            gameBoard.GetComponent<GameScript>().WinX();
+            XO[6].GetComponent<SpriteRenderer>().sprite == images[0]){
+            WinX();
         }
-        else if (XO[6].GetComponent<SpriteRenderer>().sprite == images[1] &&
+        else if (XO[2].GetComponent<SpriteRenderer>().sprite == images[1] &&
             XO[4].GetComponent<SpriteRenderer>().sprite == images[1] &&
-            XO[2].GetComponent<SpriteRenderer>().sprite == images[1])
+            XO[6].GetComponent<SpriteRenderer>().sprite == images[1])
         {
-            gameBoard.GetComponent<GameScript>().WinO();
+            WinO();
+        }
+    }
+
+
+    public void WinX()
+    {
+        WinGamePanel.SetActive(true);
+        TurnOffXO();
+        WinGameText.text = "Player 'X' Won!";
+        Debug.Log("asdasd");
+    }
+
+    public void WinO()
+    {
+        WinGamePanel.SetActive(true);
+        TurnOffXO();
+        WinGameText.text = "Player 'O' Won!";
+    }
+
+    public void TurnOffXO()
+    {
+        XO = GameObject.FindGameObjectsWithTag("Tokens");
+        foreach (GameObject xdd in XO)
+        {
+            xdd.GetComponent<BoxCollider2D>().enabled = false;
         }
     }
 
