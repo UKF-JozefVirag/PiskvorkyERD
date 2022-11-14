@@ -46,7 +46,6 @@ public class TurnScript : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log(XO[0]);
         CheckBoard();
     }
 
@@ -57,6 +56,10 @@ public class TurnScript : MonoBehaviour
             int index = gameBoard.GetComponent<GameScript>().PlayerTurn();
             spriteRenderer.sprite = images[index];
             unplayed = false;
+
+            // TODO: assign X and Y values which were clicked
+            int x = 0, y = 0;
+            StartCoroutine(Rest.Post(GameScript.instance.getLobbyId(), GameScript.instance.getPlayer(), x, y));
         }
     }
 
@@ -206,7 +209,6 @@ public class TurnScript : MonoBehaviour
         WinGamePanel.SetActive(true);
         TurnOffXO();
         WinGameText.text = "Player 'X' Won!";
-        Debug.Log("asdasd");
     }
 
     public void WinO()
