@@ -2,7 +2,7 @@
 require "DB.php";
 
 try{
-    $id = intval($_POST["id"]);
+    $id = intval($_GET["id"]);
 }catch (Exception $e){
     // throw error if id is not integer
     echo '{"status": "Game doesn\'t exist."}';
