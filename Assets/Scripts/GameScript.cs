@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 
 public class GameScript : MonoBehaviour
 {
@@ -10,25 +10,53 @@ public class GameScript : MonoBehaviour
     public static GameScript instance;
 
     private int spriteIndex = -1;
-    private GameObject[] XOS;
+    private bool canClick = false;
+    private bool isHost;
+    public TMP_Text rada;
 
     // Vars related to REST API
     private int lobbyId = -1;
-    private int player = 0;
-    private bool server = true;
+
+    private void Start()
+    {
+        Invoke("OpakujucasaMetoda", 1f);
+    }
+
+    private void Update()
+    {
+        rada.text = canClick ? "Si na rade" : "Nie si na rade";
+
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            GoToMenu();
+        }
+    }
+
+    private void OpakujucasaMetoda()
+    {
+        StartCoroutine(Rest.Get(getLobbyId()));
+        Invoke("OpakujucasaMetoda", 1f);
+    }
 
     private void Awake()
     {
         if(instance != null) return;
         instance = this;
 
-        if(server) {
-            player = 0;
+        int lobbyIdToConnect = PlayerPrefs.GetInt("game");
+        if(lobbyIdToConnect == -1) {
+            setIsHost(true);
+            PlayerPrefs.SetInt("p1x", -1);
+            PlayerPrefs.SetInt("p1y", -1);
+            PlayerPrefs.SetInt("p2x", -2);
+            PlayerPrefs.SetInt("p2y", -2);
             StartCoroutine(Rest.CreateLobby());
         } else {
-            player = 1;
-            // TODO: Get lobbyId where player want to connect (for now I am hardcoding it)
-            int lobbyIdToConnect = 0;
+            setIsHost(false);
+            PlayerPrefs.SetInt("p1x", -1);
+            PlayerPrefs.SetInt("p1y", -1);
+            PlayerPrefs.SetInt("p2x", -1);
+            PlayerPrefs.SetInt("p2y", -1);
             StartCoroutine(Rest.ConnectToLobby(lobbyIdToConnect));
         }
     }
@@ -48,9 +76,30 @@ public class GameScript : MonoBehaviour
         return lobbyId;
     }
 
-    public int getPlayer() {
-        return player;
+    public void GoToMenu()
+    {
+        Debug.Log("xd");
+        SceneManager.LoadScene("Menu");
+    }
+         
+    public bool getCanClick()
+    {
+        return canClick;
     }
 
+    public void setCanClick(bool canC)
+    {
+        this.canClick = canC;
+    }
+
+    public bool getIsHost()
+    {
+        return isHost;
+    }
+
+    public void setIsHost(bool host)
+    {
+        this.isHost = host;
+    }
 
 }

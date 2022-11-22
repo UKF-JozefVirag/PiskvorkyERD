@@ -5,7 +5,7 @@ using UnityEngine.Rendering;
 
 public class Rest : MonoBehaviour {
 
-    private static string HOST = "http://localhost/";
+    private static string HOST = "https://mirzi.cc/piskvorky/";
 
     public static IEnumerator CreateLobby() {
         string uri = HOST + "create.php";
@@ -44,11 +44,11 @@ public class Rest : MonoBehaviour {
     }
 
     public static IEnumerator ConnectToLobby(int lobbyId) {
-        string uri = HOST + "connect.php";
+        string uri = HOST + "connect.php?id=" + lobbyId;
         WWWForm form = new WWWForm();
         form.AddField("id", lobbyId);
 
-        using(UnityWebRequest request = UnityWebRequest.Post(uri, form)) {
+        using(UnityWebRequest request = UnityWebRequest.Get(uri)) {
 
             yield return request.SendWebRequest();
 
@@ -87,11 +87,11 @@ public class Rest : MonoBehaviour {
     }
 
     public static IEnumerator Get(int lobbyId) {
-        string uri = HOST + "get.php";
+        string uri = HOST + "get.php?id="+lobbyId;
         WWWForm form = new WWWForm();
         form.AddField("id", lobbyId);
 
-        using(UnityWebRequest request = UnityWebRequest.Post(uri, form)) {
+        using(UnityWebRequest request = UnityWebRequest.Get(uri)) {
 
             yield return request.SendWebRequest();
 
@@ -122,9 +122,39 @@ public class Rest : MonoBehaviour {
         public string timestamp;
         public int firstplayer;
 
+        
+
         public void logic() {
-            Debug.Log($"{this.GetType().Name} -> status: {status}, id: {id}, p1x: {p1x}, p1y: {p1y}, p2x: {p2x}, p2y: {p2y}, firstplayer: {firstplayer}, timestamp: {timestamp}");
+            int p1predoslyStavX = PlayerPrefs.GetInt("p1x");
+            int p1predoslyStavY = PlayerPrefs.GetInt("p1y");
+            int p2predoslyStavX = PlayerPrefs.GetInt("p2x");
+            int p2predoslyStavY = PlayerPrefs.GetInt("p2y");
+
+            if (GameScript.instance.getIsHost())
+            {
+                if (p2x != p2predoslyStavX || p2y != p2predoslyStavY)
+                {
+                    GameScript.instance.setCanClick(true);
+                    TurnScript.RenderItem(p2x, p2y);
+                }
+            }
+            else
+            {
+                if (p1x != p1predoslyStavX || p1y != p1predoslyStavY )
+                {
+                    GameScript.instance.setCanClick(true);
+                    TurnScript.RenderItem(p1x, p1y);
+                }
+            }
+
+
+            PlayerPrefs.SetInt("p1x", p1x);
+            PlayerPrefs.SetInt("p1y", p1y);
+            PlayerPrefs.SetInt("p2x", p2x);
+            PlayerPrefs.SetInt("p2y", p2y);
+            //Debug.Log($"{this.GetType().Name} -> status: {status}, id: {id}, p1x: {p1x}, p1y: {p1y}, p2x: {p2x}, p2y: {p2y}, firstplayer: {firstplayer}, timestamp: {timestamp}");
         }
+
 
     }
 
@@ -135,6 +165,8 @@ public class Rest : MonoBehaviour {
         form.AddField("player", player);
         form.AddField("x", x);
         form.AddField("y", y);
+
+        Debug.Log($"{lobbyId} - {player} - {x} - {y}");
 
         using(UnityWebRequest request = UnityWebRequest.Post(uri, form)) {
 
@@ -161,9 +193,13 @@ public class Rest : MonoBehaviour {
     class ResponsePost {
 
         public string status;
+        public int id;
+        public int player;
+        public int x, y;
 
         public void logic() {
-            Debug.Log($"{this.GetType().Name} -> status: {status}");
+
+            Debug.Log($"{this.GetType().Name} -> status: {status} -> id: {id} -> player: {player} -> x:{x} -> y:{y}");
         }
 
     }

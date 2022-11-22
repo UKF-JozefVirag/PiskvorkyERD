@@ -18,23 +18,9 @@ public class TurnScript : MonoBehaviour
     GameObject gameBoard;
     public Sprite[] images;
     private bool unplayed = true;
-    private GameObject[] XO;
+    private static GameObject[] XO;
     public GameObject WinGamePanel = null;
     public TMP_Text WinGameText;
-
-    /*
-     * 
-     *XO[0] = Token9
-     *XO[1] = Token8
-     *XO[2] = Token7
-     *XO[3] = Token6
-     *XO[4] = Token5
-     *XO[5] = Token4
-     *XO[6] = Token3
-     *XO[7] = Token2
-     *XO[8] = Token1
-     *
-     */
 
     private void Start()
     {
@@ -51,16 +37,57 @@ public class TurnScript : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (unplayed)
+        
+        if (unplayed && GameScript.instance.getCanClick())
         {
-            int index = gameBoard.GetComponent<GameScript>().PlayerTurn();
-            spriteRenderer.sprite = images[index];
-            unplayed = false;
+            GameScript.instance.setCanClick(false);
+            int index = GetItemIndex(this.gameObject);
+            RenderItem(index);
 
-            // TODO: assign X and Y values which were clicked
-            int x = 0, y = 0;
-            StartCoroutine(Rest.Post(GameScript.instance.getLobbyId(), GameScript.instance.getPlayer(), x, y));
+            int x = index % 3, y = index / 3;
+            StartCoroutine(Rest.Post(GameScript.instance.getLobbyId(), GameScript.instance.getIsHost() ? 0 : 1, x, y));
         }
+    }
+
+    private int GetItemIndex(GameObject go)
+    {
+        for (int i = 0; i < XO.Length; i++)
+        {
+            if (go == XO[i])
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public static void RenderItem(int index)
+    {
+        if (index < 0) return;
+
+        GameObject go = XO[index];
+        go.GetComponent<TurnScript>().SetUnplayed(false);
+        int sprite = go.GetComponent<TurnScript>().GetGameBoard().GetComponent<GameScript>().PlayerTurn();
+        go.GetComponent<TurnScript>().GetSpriteRenderer().sprite = go.GetComponent<TurnScript>().GetSprites()[sprite];
+    }
+
+    public static void RenderItem(int x, int y)
+    {
+        RenderItem(x+y*3);
+    }
+
+    public Sprite[] GetSprites()
+    {
+        return images;
+    }
+
+    public GameObject GetGameBoard()
+    {
+        return gameBoard;
+    }
+    public SpriteRenderer GetSpriteRenderer()
+    {
+        return spriteRenderer;
     }
 
     private void Awake()
@@ -69,10 +96,23 @@ public class TurnScript : MonoBehaviour
         gameBoard = GameObject.Find("GameBoard");
         WinGamePanel.SetActive(false);
     }
-
+    
+    private bool Remiza()
+    {
+        foreach (GameObject x in XO)
+        {
+            if (x.GetComponent<TurnScript>().GetUnplayed())
+            {
+                return false;
+            }
+            
+        }
+        return true;
+    }
 
     private void CheckBoard()
     {
+        
         /*
            ...
            ...
@@ -201,6 +241,13 @@ public class TurnScript : MonoBehaviour
         {
             WinO();
         }
+
+        else if (Remiza())
+        {
+            Remiiza();
+            return;
+        }
+
     }
 
 
@@ -209,6 +256,7 @@ public class TurnScript : MonoBehaviour
         WinGamePanel.SetActive(true);
         TurnOffXO();
         WinGameText.text = "Player 'X' Won!";
+        GameScript.instance.setCanClick(true);
     }
 
     public void WinO()
@@ -216,7 +264,17 @@ public class TurnScript : MonoBehaviour
         WinGamePanel.SetActive(true);
         TurnOffXO();
         WinGameText.text = "Player 'O' Won!";
+        GameScript.instance.setCanClick(true);
     }
+
+    public void Remiiza()
+    {
+        WinGamePanel.SetActive(true);
+        TurnOffXO();
+        WinGameText.text = "Remiza";
+        GameScript.instance.setCanClick(true);
+    }
+
 
     public void TurnOffXO()
     {
@@ -227,5 +285,14 @@ public class TurnScript : MonoBehaviour
         }
     }
 
+    public void SetUnplayed(bool un)
+    {
+        this.unplayed = un;
+    }
+
+    public bool GetUnplayed()
+    {
+        return this.unplayed;
+    }
 
 }

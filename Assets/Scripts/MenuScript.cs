@@ -7,26 +7,27 @@ using TMPro;
 
 public class MenuScript : MonoBehaviour
 {
-public GameObject cnvMain;
+    public GameObject cnvMain;
+    public TMP_InputField id;
 	public void CreateGame() 
 	{
+        PlayerPrefs.SetInt("game", -1);
 		SceneManager.LoadScene("Game");
 	}
 
 	public void JoinGame() 
 	{
-		SceneManager.LoadScene("Game");
+        PlayerPrefs.SetInt("game", int.Parse(id.text));
+        SceneManager.LoadScene("Game");
 	}
 
-    	// Start is called before the first frame update
-    	void Start()
-    	{
+    void Start()
+    {
     			    
-    	}
+    }
 
-    	// Update is called once per frame
-    	void Update()
-    	{
+    void Update()
+    {
       		  
-    	}
+    }
 }
